@@ -2,15 +2,18 @@
 base_url = "https://bradleycai.github.io"
 
 title = "Brad Cai"
-description = "Blog of Brad Cai"
+description = "A blog about graphics and video"
 
-theme = "zola-pickles"
+theme = "serene"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
 
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = false
+
+#generate_feeds = false # Whether to generate a feed file in root, read docs for more info about rss feed
+#feed_filenames = ["feed.xml"] # "feed.xml" | "atom.xml" | "rss.xml", read docs for more info
 
 # The taxonomies to be rendered for the site and their configuration.
 # Example:
@@ -21,15 +24,40 @@ build_search_index = false
 #       {name = "authors"}, # Basic definition: no feed or pagination
 #     ]
 #
-taxonomies = [
-    {name = "tags"},
-    {name = "categories"},
-]
+#taxonomies = [{ name = "tags" }, { name = "categories" }]
 
 [markdown]
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
-highlight_code = false
+highlight_code = true
+highlight_theme = "css"
+extra_syntaxes_and_themes = ["themes/serene/highlight_themes"]
+highlight_themes_css = [
+  { theme = "serene-light", filename = "hl-light.css" },
+  { theme = "serene-dark", filename = "hl-dark.css" },
+]
+
+external_links_target_blank = false
+external_links_no_follow = true
+external_links_no_referrer = true
 
 [extra]
 # Put all your custom variables here
+sections = [
+  { name = "posts", path = "/posts", is_external = false },
+  # { name = "github", path = "https://github.com/<your-username>", is_external = true }, # TODO
+]
+blog_section_path = "/posts"
+
+back_link_text = "Back" # Text of the back button
+force_theme = false # false | "light" | "dark"
+
+footer_copyright = ""
+footer_credits = true # Whether to show "Built with zola and serene" in footer
+
+not_found_error_text = "404 Not Found"
+not_found_recover_text = "« Back to home »"
+
+reaction = false # Whether to enable anonymous emoji reactions (Note: You need to set up a working api endpoint to enable this feature)
+#reaction_align = "right" # "left" | "center" | "right"
+#reaction_endpoint = "https://example.com/api/reaction"
