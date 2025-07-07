@@ -21,7 +21,7 @@ featured = false
 reaction = false
 +++
 
-Welcome to my first post in a series where I write a snow ground shader! The current state of my shader looks like this:
+Welcome to my first post in a series where I write a snow shader! The current state of my shader looks like this:
 
 {{ video(src="demo-1.mp4") }}
 
@@ -35,13 +35,13 @@ I started creating this snow shader as a learning exercise in trying to replicat
 
 {{ video(src="genshin-sand.mp4", width=400) }}
 
-Specifically, I wanted to recreate the way the sand follows the character really accurately and how the sand gets pushed around with a 3D parallax effect. Since Genshin Impact is meant to run on mobile devices we know that the shader is reasonably performant too, so I tried to keep performance in mind when thinking about the technical approach
+Specifically, I wanted to recreate the way the sand follows the character movements accurately and how the sand gets pushed around with a 3D parallax effect. Since Genshin Impact is meant to run on mobile devices we know that the shader is reasonably performant too, so I tried to keep performance in mind when thinking about the technical approach
 
 To mix things up a little bit I decided to create this effect on snow, but of course with some parameter tweaks and color/texture change we could replicate the sand effect as well
 
 ## Using physics collisions to get impact locations
 
-The first thing we'll need to figure out is how to capture the impact location of objects against the snow surface. My initial idea for this was to use the built-in physics already happening on the ground. We could grab the location of collisions on the snow surface essentially for free, and then pass those coordinates to the shader as an array of `Vector2`s
+The first thing we'll need to figure out is how to capture the impact location of objects against the snow surface. My initial idea for this was to use the built-in physics already happening with collisions against the ground. We could grab the location of collisions on the snow surface essentially for free, and then pass those coordinates to the shader as an array of `Vector2`s
 
 Implementing this was fairly straightforward and easy to do, and visualizing these points in a basic shader resulted in the following:
 
@@ -55,17 +55,17 @@ So in order to get the look we're going for, we'll need a different approach
 
 ## Using the depth buffer for impact locations
 
-The approach I've gone with instead is to get the distance of the objects and snow surface using the depth buffer from two orthographic cameras
+The approach I've gone with instead is to get the distance between the objects and snow surface using the depth buffer from two orthographic cameras
 
-The depth buffer is something that is mainly used in the graphics pipeline to keep track of the depth of 3D objects at each pixel during the process of drawing the fragments of each triangle. These depth values are tracked to prevent "overdraw" by testing new drawn objects against what exists in the depth buffer at each pixel. If the object isn't closer to the camera than what exists in the buffer, then we can skip that pixel since it's behind an object that's already drawn
+The depth buffer is used in the graphics pipeline to keep track of the depth of 3D objects at each pixel during the process of drawing the fragments of each triangle. These depth values are tracked to prevent "overdraw" by testing new drawn objects against what exists in the depth buffer at each pixel. If the object isn't closer to the camera than what exists in the buffer, then we can skip that pixel since it's behind an object that's already drawn
 
-Aside from it's original purpose, we can make use of the depth buffer on its own to get the data we need. One orthographic camera can be placed below the scene to get the depth of the objects close to the snow and another orthographic camera can be placed above the ground to get the depth of the snow surface itself. Given the depth of the objects and the depth of the surface we'll be able to know how close each object is to the surface
+Aside from the purpose described just now, we can make use of the values in this depth buffer to get the data we need. One orthographic camera can be placed below the scene to get the depth of the objects close to the snow and another orthographic camera can be placed above the ground to get the depth of the snow surface itself. Given the depth of the objects and the depth of the surface we'll be able to know how close each object is to the surface
 
 {{ centered_image(src="orthographic-cameras.jpg") }}
 
 It might seem expensive to render the scene from two new perspectives, but so long as we disable everything we don't need it'll actually be fairly cheap. All we need are the depth values, so we can disable expensive effects like lighting and shadows. The resulting render from our cameras will be far more lightweight than a normal render pass
 
-We can also configure the cameras to only render meshes that are on a specific mask layer. We'll need to configure models like our player and interactive objects to be on this mask layer, but once we do we can isolate this effect to only a few important meshes and exclude everything else. Reducing the amount of meshes each camera renders will reduce the amount of triangles that need to be rendered in the graphics pipeline which should keep our shader performant
+We can also configure the cameras to only render meshes that are on a specific mask layer. We'll need to configure models like our player and interactive objects to be on this mask layer, but once we do we can isolate this effect to only a few important meshes and exclude everything else. Reducing the amount of meshes each camera renders will reduce the amount of triangles that need to be rendered in the graphics pipeline which should keep this effect performant
 
 {{ centered_image(src="actor-layer-2.jpg") }}
 
@@ -73,12 +73,12 @@ We can also configure the cameras to only render meshes that are on a specific m
 
 ## Getting the depth texture in Godot
 
-Now that we have thought through the design of how we're going to use two cameras to get the impact location, it's time to implement actually getting that data and using it in the project. In Godot there are two main ways to get our cameras to output the values of the depth buffer as a depth texture
+Now that we've thought through the design of how we're going to use two cameras to get the impact location, it's time to actually implement it. In Godot there are two main ways to get our cameras to output the values of the depth buffer as a depth texture
 
 One way is to use a quad mesh with a vertex shader that moves the vertices of the mesh to cover the view of the camera and then display the depth texture on that mesh. Instructions for doing that can be found on the Godot wiki here:  
 <https://docs.godotengine.org/en/stable/tutorials/shaders/advanced_postprocessing.html>
 
-Another way is to use the [Compositor](https://docs.godotengine.org/en/stable/tutorials/rendering/compositor.html) which lets you to run compute shaders for post processing effects on a viewport. "Compositor Effects" can be defined as custom classes in script and then added to the compositor on our cameras
+Another way is to use the [Compositor](https://docs.godotengine.org/en/stable/tutorials/rendering/compositor.html) which lets you to run compute shaders for post processing effects on a viewport. "Compositor Effects" can be defined with custom classes in script and then added to the compositor on our cameras
 
 Either method works fine, though I found the compositor to be a little easier to work with because it isolates the effect to the cameras. The quad mesh applies itself to the editor camera as well which hinders visibility, and if you disable it when editing the scene then you can't view the output for debugging
 
@@ -115,9 +115,9 @@ depth_uniform.add_id(depth_texture)
 var uniform_set := UniformSetCacheRD.get_cache(shader, 0, [color_uniform, depth_uniform])
 ```
 
-We then bind what we need to GPU memory. Here we're binding an "image" and a "sampler with texture" to a set. The "texture" contains the data of our texture and the sampler defines how we read it. An image can be both written to and read from, and the `color_texture` here is what we will write to for the output
+We then bind what we need to GPU memory. Here we're binding an "image" and a "sampler with texture" to a set. The "texture" contains the data of our texture and the sampler defines how we read it. An image can be both written to and read from, and the `color_texture` here is both the input of the viewport as well as the image output we will be writing to
 
-The data for these resources exist in GPU memory and here in the code on the CPU side we have a handle to those resources in the form of an RID. Godot uses these RIDs at a lower level to handle resources. Reading data from the GPU to the CPU can incur a large cost but we can avoid that by managing GPU memory with these RID handles on the CPU side. In our case we want to get the depth texture from our camera and use it in a shader, and despite the above code running on the CPU, the data binding for this will happen on the GPU side
+The data for these resources exist in GPU memory and here in the code on the CPU side we have a handle to those resources in the form of an RID. Godot uses these RIDs at a lower level to handle resources. Reading data from the GPU to the CPU can incur a large cost but we can avoid that by managing GPU memory with these RID handles on the CPU side. In our case we want to get the depth texture from our camera and use it in a shader, and despite the above code running on the CPU, no data syncing was necessary
 
 ```gd
 var compute_list := rd.compute_list_begin()
@@ -130,7 +130,7 @@ rd.compute_list_end()
 
 Lastly, we set up a compute list with our data and shader and dispatch it
 
-The two orthographic cameras will now display the depth texture of what they can see. To capture this output, I've added the cameras as children of two [SubViewport](https://docs.godotengine.org/en/stable/classes/class_subviewport.html) nodes which will let us capture the output of the cameras to a render texture. This texture will be available to select in other nodes' texture properties
+The two orthographic cameras will now display the depth texture of what they can see. To capture this output, I've added the cameras as children of two [SubViewport](https://docs.godotengine.org/en/stable/classes/class_subviewport.html) nodes which will let us write the output of the cameras to a render texture. This texture will be available to select in other nodes' texture properties
 
 ## Further processing the "impact" texture
 
@@ -164,7 +164,7 @@ The other approach would be to try to create the snow indentation in the fragmen
 
 {{ video(src="parallax.mp4") }}
 
-For this parallax mapping effect I used an existing implementation online for reference, though the original code was written for use in the node based shader editor which I've adapted to just gdshader code:  
+For this parallax mapping effect I used an existing implementation online for reference, though the original code was written for use in the node based shader editor which I've adapted to use in gdshader code:  
 <https://godotshaders.com/shader/bumpoffset-visualshadernode-4-4/>
 
 This effect looks smoother than the vertex displacement approach and doesn't need to add any extra vertices to the ground mesh. This shader will run for every fragment however and since the ground will likely take up a large portion of the screen, the amount of fragments will often largely outnumber the amount of vertices
@@ -176,7 +176,7 @@ Hypothetically both approaches have their pros and cons on performance. With som
   <img src="displacement-performance.jpg" alt="vertex shader displacement map performance" style="width: 50%;">
 </div>
 
-Ultimately I decided to go with the fragment shader approach because it seems like it has the most artistic flexibility and looks smoother
+Ultimately I decided to go with the fragment shader approach because it has better performance, doesn't need to add extraneous geometry, and looks smoother
 
 ## The final result
 
@@ -186,11 +186,11 @@ And so we have the current state of the effect!
 
 I think this works well as a proof of concept but from here there are quite a few things that I want to add and tweak to this effect
 
-One issue of this effect right now is that it is not framerate independent. Shaders will run every frame, so the shader code for making snow fill impacted snow will vary in speed depending on FPS. Someone playing on 60 FPS will get half the snow regeneration speed of someone playing on 120 FPS for example
+One issue of this effect right now is that it is not framerate independent. Shaders will run every frame, so the shader code for filling impacted snow will vary in speed depending on FPS. Someone playing on 60 FPS will get half the snow regeneration speed of someone playing on 120 FPS for example
 
-Another thing that I want to do is combine the two front and back texture shaders I'm using and combine them into one compute shader. I originally tried using just one texture shader in Godot to render to and read from, but it doesn't seem like that's supported for subviewports in Godot. If we were to use an "image" in a compute shader however, then we could just use one texture and reduce the amount of video memory we use for this effect
+Another thing that I want to do is take out the two front and back texture shaders I'm using and combine them into one compute shader. I originally tried using just one texture shader in Godot to render to and read from, but it doesn't seem like that's supported for subviewports in Godot. If we were to use an "image" in a compute shader however, then we could just use one texture and reduce the amount of video memory we use for this effect
 
-Another big improvement we could do is move the above and below cameras to follow the character / snow objects instead of be tied to the mesh itself. This would decrease the amount of memory we need to store depth information for the impact locations since the cameras only need to capture the range of motion for each actor vs the entire snow ground. Then, the snow mesh shaders would read from these textures and match the global coordinates with it's own global coordinate for each fragment
+Another big improvement we could look into is changing the above and below cameras to follow the character / snow objects instead of be tied to the mesh itself. This would decrease the amount of memory we need to store depth information for the impact locations since the cameras only need to capture the range of motion for each actor vs the entire snow ground. Then, the snow mesh shaders would read from these textures and match the global coordinates with it's own global coordinate for each fragment
 
 There's also still a few visual details missing from the Genshin shader that I'd like to add. The Genshin shader has lighting inside of the indentation, there's a bump around the edges of the indentation, and there's also a general nonuniform bumpiness that gives the indentations a more organic/realistic look
 
@@ -200,4 +200,6 @@ I think ultimately at some point I'd like to get this in a decent state and publ
 
 That's it for now though on what this shader looks like in its current state. Until next time!
 
-<!-- - [ ] TODO add github link -->
+---
+
+**Github Link:** <https://github.com/BradleyCai/snow-shader>

@@ -15,6 +15,7 @@ name = "Brad Cai"
 links = [
     { name = "GitHub", icon = "github", url = "https://github.com/BradleyCai" },
     { name = "LinkedIn", icon = "linkedin", url = "https://www.linkedin.com/in/BradCai/" },
+    { name = "Resume", icon = "file-text-line", url = "/brad-cai-resume.pdf" },
     { name = "Email", icon = "email", url = "mailto:bradcai24@gmail.com" },
 ]
 
