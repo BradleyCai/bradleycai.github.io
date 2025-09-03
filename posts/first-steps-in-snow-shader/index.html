@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  
+  
+    
+  
+  <meta name="description" content="A blog about graphics and video">
+
+  <title>First Steps in Snow Shader</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="https://bradleycai.github.io/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://bradleycai.github.io/img/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://bradleycai.github.io/img/apple-touch-icon.png">
+  
+  <style>
+
+  /* light mode colors */
+  body {
+    --primary-color: #5871a2;
+    --primary-pale-color: #5871a233;
+    --primary-decoration-color: #5871a210;
+    --bg-color: #ffffff;
+    --text-color: #2f3030;
+    --text-pale-color: #767676;
+    --text-decoration-color: #a9a9a9;
+    --highlight-mark-color: #5f75b020;
+
+    --callout-note-color: #5871a2;
+    --callout-tip-color: #268556;
+    --callout-important-color: #885fc9;
+    --callout-warning-color: #ab6632;
+    --callout-caution-color: #c64e4e;
+  }
+
+  /* dark mode colors */
+  body.dark {
+    --primary-color: #6f8fd1;
+    --primary-pale-color: #6f8fd166;
+    --primary-decoration-color: #6f8fd112;
+    --bg-color: #1c1c1c;
+    --text-color: #c1c1c1;
+    --text-pale-color: #848484;
+    --text-decoration-color: #5f5f5f;
+    --highlight-mark-color: #8296cb3b;
+
+    --callout-note-color: #6f8fd1;
+    --callout-tip-color: #47976f;
+    --callout-important-color: #9776cd;
+    --callout-warning-color: #ad7a52;
+    --callout-caution-color: #d06161;
+  }
+
+  /* typography */
+  body {
+    --main-font: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --homepage-max-width: 768px;
+    --main-max-width: 768px;
+    --avatar-size: 60px;
+    --font-size: 16px;
+    --line-height: 1.75;
+    --img-border-radius: 0px;
+    --detail-border-radius: 0px;
+    --dark-mode-img-brightness: 0.75;
+    --dark-mode-chart-brightness: 0.75;
+    --inline-code-border-radius: 2px;
+    --inline-code-bg-color: var(--primary-decoration-color);
+    --block-code-border-radius: 0px;
+    --block-code-border-color: var(--primary-color);
+    --detail-border-color: var(--primary-color);
+  }
+  
+  #name { 
+    font-size: 24px;
+  }
+
+</style>
+
+  <link rel="stylesheet" href="https://bradleycai.github.io/main.css">
+  
+
+<link id="hl" rel="stylesheet" type="text/css" href="/hl-light.css" />
+
+
+
+  
+</head>
+
+<body class="post">
+  
+  <script>
+    const theme = sessionStorage.getItem('theme');
+    const match = window.matchMedia("(prefers-color-scheme: dark)").matches
+    if ((theme && theme == 'dark') || (!theme && match)) {
+      document.body.classList.add('dark');
+      const hl = document.querySelector('link#hl');
+      if (hl) hl.href = 'https://bradleycai.github.io/hl-dark.css';
+    }
+  </script>
+  
+  
+<div id="wrapper">
+  <div id="blank"></div>
+  <aside>
+    
+    
+    <nav>
+      <ul>
+        
+        <li>
+          <a class="h2" href="#the-inspiration-for-this-shader">The inspiration for this shader</a>
+          
+        </li>
+        
+        <li>
+          <a class="h2" href="#using-physics-collisions-to-get-impact-locations">Using physics collisions to get impact locations</a>
+          
+        </li>
+        
+        <li>
+          <a class="h2" href="#using-the-depth-buffer-for-impact-locations">Using the depth buffer for impact locations</a>
+          
+        </li>
+        
+        <li>
+          <a class="h2" href="#getting-the-depth-texture-in-godot">Getting the depth texture in Godot</a>
+          
+        </li>
+        
+        <li>
+          <a class="h2" href="#further-processing-the-impact-texture">Further processing the &quot;impact&quot; texture</a>
+          
+        </li>
+        
+        <li>
+          <a class="h2" href="#impacted-snow-parallax-effect">Impacted snow parallax effect</a>
+          
+        </li>
+        
+        <li>
+          <a class="h2" href="#the-final-result">The final result</a>
+          
+        </li>
+        
+      </ul>
+    </nav>
+    
+    
+    <button id="back-to-top" aria-label="back to top">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-up"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+
+    </button>
+    
+  </aside>
+  <main>
+    
+<header>
+  <nav>
+    <a href="https:&#x2F;&#x2F;bradleycai.github.io&#x2F;posts">← Back</a>
+  </nav>
+</header>
+
+
+    <div>
+      
+      
+      
+      
+      <div id="copy-cfg" style="display: none;" data-copy-icon="&lt;svg xmlns=&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2000&#x2F;svg&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;18&quot; height=&quot;18&quot;&gt;&lt;path d=&quot;M6.9998 6V3C6.9998 2.44772 7.44752 2 7.9998 2H19.9998C20.5521 2 20.9998 2.44772 20.9998 3V17C20.9998 17.5523 20.5521 18 19.9998 18H16.9998V20.9991C16.9998 21.5519 16.5499 22 15.993 22H4.00666C3.45059 22 3 21.5554 3 20.9991L3.0026 7.00087C3.0027 6.44811 3.45264 6 4.00942 6H6.9998ZM5.00242 8L5.00019 20H14.9998V8H5.00242ZM8.9998 6H16.9998V16H18.9998V4H8.9998V6Z&quot; fill=&quot;currentColor&quot;&gt;&lt;&#x2F;path&gt;&lt;&#x2F;svg&gt;
+" data-check-icon="&lt;svg xmlns=&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2000&#x2F;svg&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;18&quot; height=&quot;18&quot;&gt;&lt;path d=&quot;M10.0007 15.1709L19.1931 5.97852L20.6073 7.39273L10.0007 17.9993L3.63672 11.6354L5.05093 10.2212L10.0007 15.1709Z&quot; fill=&quot;currentColor&quot;&gt;&lt;&#x2F;path&gt;&lt;&#x2F;svg&gt;
+"></div>
+      
+      <article class="prose">
+        <h1>First Steps in Snow Shader</h1>
+        <div id="post-info">
+          <div id="date">
+            <span id="publish">Jun 17, 2025</span>
+            </div>
+
+          
+        </div>
+
+        
+        
+
+        
+
+        <p>Welcome to my first post in a series where I write a snow shader! The current state of my shader looks like this:</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="demo-1.mp4" type="video/mp4">
+  (demo-1.mp4)
+</video>
+<p>The demonstration here is a little basic, but you can see how the ground reacts to nearby objects pressing down on the snow and making indentations. As time passes, the snow also gets filled back in. There is a 3D effect of the snow getting pushed down, which is a parallax effect done in a fragment shader instead of moving the vertices in the mesh</p>
+<p>I'll be going over a few key points in my initial implementation of this effect as well as some of the computer graphics, gpu programming, and graphics API concepts behind it. This project was made in Godot, but plenty of these ideas apply to other game engines as well. The code for the Godot project is linked at the bottom of this post</p>
+<h2 id="the-inspiration-for-this-shader">The inspiration for this shader<a class="zola-anchor" href="#the-inspiration-for-this-shader" aria-label="Anchor link for: the-inspiration-for-this-shader" style="visibility: hidden;"></a>
+</h2>
+<p>I started creating this snow shader as a learning exercise in trying to replicate the following effect from Genshin Impact:</p>
+<video controls muted width="400" style="display: block; margin: 0 auto;">
+  <source src="genshin-sand.mp4" type="video/mp4">
+  (genshin-sand.mp4)
+</video>
+<p>Specifically, I wanted to recreate the way the sand follows the character movements accurately and how the sand gets pushed around with a 3D parallax effect. Since Genshin Impact is meant to run on mobile devices we know that the shader is reasonably performant too, so I tried to keep performance in mind when thinking about the technical approach</p>
+<p>To mix things up a little bit I decided to create this effect on snow, but of course with some parameter tweaks and color/texture change we could replicate the sand effect as well</p>
+<h2 id="using-physics-collisions-to-get-impact-locations">Using physics collisions to get impact locations<a class="zola-anchor" href="#using-physics-collisions-to-get-impact-locations" aria-label="Anchor link for: using-physics-collisions-to-get-impact-locations" style="visibility: hidden;"></a>
+</h2>
+<p>The first thing we'll need to figure out is how to capture the impact location of objects against the snow surface. My initial idea for this was to use the built-in physics already happening with collisions against the ground. We could grab the location of collisions on the snow surface essentially for free, and then pass those coordinates to the shader as an array of <code>Vector2</code>s</p>
+<p>Implementing this was fairly straightforward and easy to do, and visualizing these points in a basic shader resulted in the following:</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="collision-impact-locations.mp4" type="video/mp4">
+  (collision-impact-locations.mp4)
+</video>
+<p>While this approach is pretty performant and works at a basic level, the drawback here is that the resolution of objects impacting the ground is limited to a single point. With these single points the best we can do is have uniformly shaped impacts, which you can see in the video</p>
+<p>Another major flaw with this approach is that not all collisions will necessarily match to the visuals of the mesh. We would get the wrong area of impact with a capsule shaped collision on a human shaped mesh</p>
+<p>So in order to get the look we're going for, we'll need a different approach</p>
+<h2 id="using-the-depth-buffer-for-impact-locations">Using the depth buffer for impact locations<a class="zola-anchor" href="#using-the-depth-buffer-for-impact-locations" aria-label="Anchor link for: using-the-depth-buffer-for-impact-locations" style="visibility: hidden;"></a>
+</h2>
+<p>The approach I've gone with instead is to get the distance between the objects and snow surface using the depth buffer from two orthographic cameras</p>
+<p>The depth buffer is used in the graphics pipeline to keep track of the depth of 3D objects at each pixel during the process of drawing the fragments of each triangle. These depth values are tracked to prevent "overdraw" by testing new drawn objects against what exists in the depth buffer at each pixel. If the object isn't closer to the camera than what exists in the buffer, then we can skip that pixel since it's behind an object that's already drawn</p>
+<p>Aside from the purpose described just now, we can make use of the values in this depth buffer to get the data we need. One orthographic camera can be placed below the scene to get the depth of the objects close to the snow and another orthographic camera can be placed above the ground to get the depth of the snow surface itself. Given the depth of the objects and the depth of the surface we'll be able to know how close each object is to the surface</p>
+<img src="orthographic-cameras.jpg" style="display: block; margin: 18px auto;">
+<p>It might seem expensive to render the scene from two new perspectives, but so long as we disable everything we don't need it'll actually be fairly cheap. All we need are the depth values, so we can disable expensive effects like lighting and shadows. The resulting render from our cameras will be far more lightweight than a normal render pass</p>
+<p>We can also configure the cameras to only render meshes that are on a specific mask layer. We'll need to configure models like our player and interactive objects to be on this mask layer, but once we do we can isolate this effect to only a few important meshes and exclude everything else. Reducing the amount of meshes each camera renders will reduce the amount of triangles that need to be rendered in the graphics pipeline which should keep this effect performant</p>
+<img src="actor-layer-2.jpg" style="display: block; margin: 18px auto;"><img src="stump-layer-1.jpg" style="display: block; margin: 18px auto;"><h2 id="getting-the-depth-texture-in-godot">Getting the depth texture in Godot<a class="zola-anchor" href="#getting-the-depth-texture-in-godot" aria-label="Anchor link for: getting-the-depth-texture-in-godot" style="visibility: hidden;"></a>
+</h2>
+<p>Now that we've thought through the design of how we're going to use two cameras to get the impact location, it's time to actually implement it. In Godot there are two main ways to get our cameras to output the values of the depth buffer as a depth texture</p>
+<p>One way is to use a quad mesh with a vertex shader that moves the vertices of the mesh to cover the view of the camera and then display the depth texture on that mesh. Instructions for doing that can be found on the Godot wiki here:<br />
+<a rel="nofollow noreferrer" href="https://docs.godotengine.org/en/stable/tutorials/shaders/advanced_postprocessing.html">https://docs.godotengine.org/en/stable/tutorials/shaders/advanced_postprocessing.html</a></p>
+<p>Another way is to use the <a rel="nofollow noreferrer" href="https://docs.godotengine.org/en/stable/tutorials/rendering/compositor.html">Compositor</a> which lets you to run compute shaders for post processing effects on a viewport. "Compositor Effects" can be defined with custom classes in script and then added to the compositor on our cameras</p>
+<p>Either method works fine, though I found the compositor to be a little easier to work with because it isolates the effect to the cameras. The quad mesh applies itself to the editor camera as well which hinders visibility, and if you disable it when editing the scene then you can't view the output for debugging</p>
+<p>The compositor interacts with the lower level Godot graphics APIs more directly, so we'll need to compile the shader code, create the pipeline, bind the textures to GPU memory, and dispatch the compute command list ourselves</p>
+<pre data-lang="gd" class="language-gd z-code"><code class="language-gd" data-lang="gd"><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">shader_file</span> :<span class="z-keyword z-operator z-assignment z-gdscript">=</span> <span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">load</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-meta z-string z-gdscript"><span class="z-string z-quoted z-double z-gdscript"><span class="z-punctuation z-definition z-string z-begin z-gdscript">&quot;</span>uid://ccsu7g7cr3j5i<span class="z-punctuation z-definition z-string z-end z-gdscript">&quot;</span></span></span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span> <span class="z-comment z-line z-number-sign z-gdscript"><span class="z-punctuation z-definition z-comment z-number-sign z-gdscript">#</span> res://scripts/depth_effect.glsl</span>
+</span><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">shader_spirv</span>: RDShaderSPIRV <span class="z-keyword z-operator z-assignment z-gdscript">=</span> shader_file.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">get_spirv</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">shader <span class="z-keyword z-operator z-assignment z-gdscript">=</span> rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">shader_create_from_spirv</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>shader_spirv<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">
+</span><span class="z-source z-gdscript"><span class="z-keyword z-control z-flow z-gdscript">if</span> shader.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">is_valid</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>:
+</span><span class="z-source z-gdscript">	pipeline <span class="z-keyword z-operator z-assignment z-gdscript">=</span> rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_pipeline_create</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>shader<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span></code></pre>
+<p>In the above code we can see an example of what Godot's lower level "RenderingServer" API looks, which at times resembles the vulkan graphics API. It's generally much simpler than how the vulkan API may look but still gives us access to very powerful lower level graphics APIs</p>
+<p>We first load the shader as SPIR-V, which is a standardized intermediate shader representation, and compile it. After that we create a compute pipeline object which defines a pipeline for doing compute shader work. This compute pipeline allows us to run a compute shader without needing to go through all of the steps of a traditional graphics pipeline</p>
+<pre data-lang="gd" class="language-gd z-code"><code class="language-gd" data-lang="gd"><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">color_image</span>: <span class="z-storage z-type z-engine z-gdscript">RID</span> <span class="z-keyword z-operator z-assignment z-gdscript">=</span> render_scene_buffers.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">get_color_layer</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>view<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">depth_texture</span>: <span class="z-storage z-type z-engine z-gdscript">RID</span> <span class="z-keyword z-operator z-assignment z-gdscript">=</span> render_scene_buffers.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">get_depth_layer</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>view<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">
+</span><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">color_uniform</span> :<span class="z-keyword z-operator z-assignment z-gdscript">=</span> RDUniform.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">new</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">color_uniform.uniform_type <span class="z-keyword z-operator z-assignment z-gdscript">=</span> RenderingDevice.UNIFORM_TYPE_IMAGE
+</span><span class="z-source z-gdscript">color_uniform.binding <span class="z-keyword z-operator z-assignment z-gdscript">=</span> <span class="z-constant z-numeric z-integer z-gdscript">0</span>
+</span><span class="z-source z-gdscript">color_uniform.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">add_id</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>color_image<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">
+</span><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">depth_uniform</span> :<span class="z-keyword z-operator z-assignment z-gdscript">=</span> RDUniform.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">new</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">depth_uniform.uniform_type <span class="z-keyword z-operator z-assignment z-gdscript">=</span> RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+</span><span class="z-source z-gdscript">depth_uniform.binding <span class="z-keyword z-operator z-assignment z-gdscript">=</span> <span class="z-constant z-numeric z-integer z-gdscript">1</span>
+</span><span class="z-source z-gdscript">depth_uniform.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">add_id</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>sampler<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">depth_uniform.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">add_id</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>depth_texture<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">
+</span><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">uniform_set</span> :<span class="z-keyword z-operator z-assignment z-gdscript">=</span> UniformSetCacheRD.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">get_cache</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>shader<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> <span class="z-constant z-numeric z-integer z-gdscript">0</span><span class="z-punctuation z-separator z-arguments z-gdscript">,</span> [color_uniform<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> depth_uniform]<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span></code></pre>
+<p>We then bind what we need to GPU memory. Here we're binding an "image" and a "sampler with texture" to a set. The "texture" contains the data of our texture and the sampler defines how we read it. An image can be both written to and read from, and the <code>color_texture</code> here is both the input of the viewport as well as the image output we will be writing to</p>
+<p>The data for these resources exist in GPU memory and here in the code on the CPU side we have a handle to those resources in the form of an RID. Godot uses these RIDs at a lower level to handle resources. Reading data from the GPU to the CPU can incur a large cost but we can avoid that by managing GPU memory with these RID handles on the CPU side. In our case we want to get the depth texture from our camera and use it in a shader, and despite the above code running on the CPU, no data syncing was necessary</p>
+<pre data-lang="gd" class="language-gd z-code"><code class="language-gd" data-lang="gd"><span class="z-source z-gdscript"><span class="z-storage z-type z-var z-gdscript">var</span> <span class="z-variable z-other z-gdscript">compute_list</span> :<span class="z-keyword z-operator z-assignment z-gdscript">=</span> rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_list_begin</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_list_bind_compute_pipeline</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>compute_list<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> pipeline<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_list_bind_uniform_set</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>compute_list<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> uniform_set<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> <span class="z-constant z-numeric z-integer z-gdscript">0</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_list_set_push_constant</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>compute_list<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> push_constant.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">to_byte_array</span></span><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>, push_constant.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">size</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span> <span class="z-keyword z-operator z-arithmetic z-gdscript">*</span> <span class="z-constant z-numeric z-integer z-gdscript">4</span>)
+</span><span class="z-source z-gdscript">rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_list_dispatch</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span>compute_list<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> x_groups<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> y_groups<span class="z-punctuation z-separator z-arguments z-gdscript">,</span> z_groups<span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span><span class="z-source z-gdscript">rd.<span class="z-meta z-function-call z-gdscript"><span class="z-variable z-function z-gdscript">compute_list_end</span></span><span class="z-meta z-function-call z-arguments z-gdscript"><span class="z-punctuation z-section z-arguments z-begin z-gdscript">(</span><span class="z-punctuation z-section z-arguments z-end z-gdscript">)</span></span>
+</span></code></pre>
+<p>Lastly, we set up a compute list with our data and shader and dispatch it</p>
+<p>The two orthographic cameras will now display the depth texture of what they can see. To capture this output, I've added the cameras as children of two <a rel="nofollow noreferrer" href="https://docs.godotengine.org/en/stable/classes/class_subviewport.html">SubViewport</a> nodes which will let us write the output of the cameras to a render texture. This texture will be available to select in other nodes' texture properties</p>
+<h2 id="further-processing-the-impact-texture">Further processing the "impact" texture<a class="zola-anchor" href="#further-processing-the-impact-texture" aria-label="Anchor link for: further-processing-the-impact-texture" style="visibility: hidden;"></a>
+</h2>
+<p>So from here we <em>could</em> pass these depth textures directly into the final snow shader on the ground mesh, but I decided to further process them as a separate step and then output a snow "impact" texture. Shader debugging can get pretty messy since we can't use a debugger in shader code or print out values, so this intermediary step will help verify that the inputs to the final part of our snow shader look right</p>
+<p>This impact texture will hold information at each pixel of what the height of the snow should be. A value of 1.0 will be max snow height and a value of 0 will be the floor of the snow height</p>
+<p>So first we'll compare the two depth textures we have to determine if the objects are close to the snow surface. If an object is close to the snow surface we'll output a 0 and if the object is far we'll output a number closer to 1 or just output 1 if there are no objects near the snow surface</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="close-to-snow-surface.mp4" type="video/mp4">
+  (close-to-snow-surface.mp4)
+</video>
+<p>Once we've compared the depth textures in this way, we will have a texture representing the height of snow</p>
+<p>For a better looking effect I've also blurred the edges to make the impact location look more smooth, kept track of the output of previous frame to show a trail of impacted snow over time, and also made it so the texture will slowly turn back white to refill the snow after time as passed</p>
+<p>And with that we get the following result:</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="final-impact-texture.mp4" type="video/mp4">
+  (final-impact-texture.mp4)
+</video><h2 id="impacted-snow-parallax-effect">Impacted snow parallax effect<a class="zola-anchor" href="#impacted-snow-parallax-effect" aria-label="Anchor link for: impacted-snow-parallax-effect" style="visibility: hidden;"></a>
+</h2>
+<p>Now with the impact map ready as an input, we can create the actual visual effect for the snow ground. This effect involves making the ground look like snow is getting indented and pushed around. There's two approaches we can take for achieving this effect, one is to do this in a vertex shader and the other is to do this in a fragment shader</p>
+<p>In a vertex shader, we can use the impact map as a displacement map and move vertices up in space based on the value of the map. This effect looks like this:</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="displacement.mp4" type="video/mp4">
+  (displacement.mp4)
+</video>
+<p>Since the actual mesh vertices are moving and the geometry is being deformed, the snow dent is spatially accurate without needing any visual tricks. It does require a decent amount of vertices in the mesh for the effect to look good however, which are vertices that the mesh otherwise wouldn't have needed to define its original shape. These extra vertices will reduce performance since each triangle will add GPU memory usage and GPU processing time for things like transformations, fragment interpolation, and culling. Each additional triangle adds a very tiny cost, but in large quantities it adds up</p>
+<p>The other approach would be to try to create the snow indentation in the fragment shader instead. One way to do this is to use parallax mapping, which looks generally good in most scenarios except for up close at harsh grazing angles. For a snow footprint effect, those limitations aren't an issue. The result looks like this:</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="parallax.mp4" type="video/mp4">
+  (parallax.mp4)
+</video>
+<p>For this parallax mapping effect I used an existing implementation online for reference, though the original code was written for use in the node based shader editor which I've adapted to use in gdshader code:<br />
+<a rel="nofollow noreferrer" href="https://godotshaders.com/shader/bumpoffset-visualshadernode-4-4/">https://godotshaders.com/shader/bumpoffset-visualshadernode-4-4/</a></p>
+<p>This effect looks smoother than the vertex displacement approach and doesn't need to add any extra vertices to the ground mesh. This shader will run for every fragment however and since the ground will likely take up a large portion of the screen, the amount of fragments will often largely outnumber the amount of vertices</p>
+<p>Hypothetically both approaches have their pros and cons on performance. With some rough profiling in different scenarios like at a grazing angle, filling the screen with the ground, and having the camera far away, it seems like the fragment shader with parallax mapping does around 70% better (~2500 fps vs ~1500 fps) than the vertex shader displacement map with a 500x500 grid of quads (500,000 primitives)</p>
+<div style="width: 400px; margin: 0 auto; display: flex; gap: 16px;">
+  <img src="parallax-performance.jpg" alt="fragment shader parallax mapping performance" style="width: 50%;">
+  <img src="displacement-performance.jpg" alt="vertex shader displacement map performance" style="width: 50%;">
+</div>
+<p>Ultimately I decided to go with the fragment shader approach because it has better performance, doesn't need to add extraneous geometry, and looks smoother</p>
+<h2 id="the-final-result">The final result<a class="zola-anchor" href="#the-final-result" aria-label="Anchor link for: the-final-result" style="visibility: hidden;"></a>
+</h2>
+<p>And so we have the current state of the effect!</p>
+<video controls muted width="640" style="display: block; margin: 0 auto;">
+  <source src="demo-2.mp4" type="video/mp4">
+  (demo-2.mp4)
+</video>
+<p>I think this works well as a proof of concept but from here there are quite a few things that I want to add and tweak to this effect</p>
+<p>One issue of this effect right now is that it is not framerate independent. Shaders will run every frame, so the shader code for filling impacted snow will vary in speed depending on FPS. Someone playing on 60 FPS will get half the snow regeneration speed of someone playing on 120 FPS for example</p>
+<p>Another thing that I want to do is take out the two front and back texture shaders I'm using and combine them into one compute shader. I originally tried using just one texture shader in Godot to render to and read from, but it doesn't seem like that's supported for subviewports in Godot. If we were to use an "image" in a compute shader however, then we could just use one texture and reduce the amount of video memory we use for this effect</p>
+<p>Another big improvement we could look into is changing the above and below cameras to follow the character / snow objects instead of be tied to the mesh itself. This would decrease the amount of memory we need to store depth information for the impact locations since the cameras only need to capture the range of motion for each actor vs the entire snow ground. Then, the snow mesh shaders would read from these textures and match the global coordinates with it's own global coordinate for each fragment</p>
+<p>There's also still a few visual details missing from the Genshin shader that I'd like to add. The Genshin shader has lighting inside of the indentation, there's a bump around the edges of the indentation, and there's also a general nonuniform bumpiness that gives the indentations a more organic/realistic look</p>
+<p>Finally, I'd like to improve the usability of this effect in Godot. Ideally, knowing the inner workings of this shader shouldn't be necessary for it's use and it should be simple and intuitive to apply to meshes. I'm thinking it could be either instantiated as a scene with a way to define the mesh, or perhaps it can be a component node that when attached to a mesh will apply the effect</p>
+<p>I think ultimately at some point I'd like to get this in a decent state and publish it to the Godot asset library</p>
+<p>That's it for now though on what this shader looks like in its current state. Until next time!</p>
+<hr />
+<p><strong>Github Link:</strong> <a rel="nofollow noreferrer" href="https://github.com/BradleyCai/snow-shader">https://github.com/BradleyCai/snow-shader</a></p>
+
+      </article>
+
+      
+      
+
+      
+      
+    </div>
+
+    
+
+
+<footer>
+  <div class="left">
+    <div class="copyright">
+      
+      
+      <span>|</span>
+      Built with <a href="https://www.getzola.org" rel="noreferrer" target="_blank">zola</a> and <a href="https://github.com/isunjn/serene" rel="noreferrer" target="_blank">serene</a>
+      
+    </div>
+  </div>
+
+  <div class="right">
+    
+    
+    
+    
+
+    
+    
+    
+    <button id="theme-toggle" aria-label="theme switch">
+      <span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"><path d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27098 10 5.04157 10 7ZM4 12C4 16.4183 7.58172 20 12 20C15.0583 20 17.7158 18.2839 19.062 15.7621C18.3945 15.9187 17.7035 16 17 16C12.0294 16 8 11.9706 8 7C8 6.29648 8.08133 5.60547 8.2379 4.938C5.71611 6.28423 4 8.9417 4 12Z" fill="currentColor"></path></svg>
+</span>
+      <span class="sun-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"><path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z" fill="currentColor"></path></svg>
+</span>
+    </button>
+    
+  </div>
+</footer>
+
+
+
+
+
+  </main>
+</div>
+
+  
+<script src="/js/lightense.min.js"></script>
+
+
+  <script src="https://bradleycai.github.io/js/main.js"></script>
+</body>
+
+</html>
