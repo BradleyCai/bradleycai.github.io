@@ -45,9 +45,10 @@ external_links_no_referrer = true
 # Put all your custom variables here
 sections = [
   { name = "posts", path = "/posts", is_external = false },
-  # { name = "github", path = "https://github.com/<your-username>", is_external = true }, # TODO
+  { name = "showcase", path = "/showcase", is_external = false },
 ]
 blog_section_path = "/posts"
+jszoom = true
 
 back_link_text = "Back" # Text of the back button
 force_theme = false # false | "light" | "dark"

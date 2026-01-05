@@ -1,0 +1,89 @@
+{% import "macros/prose.html" as macros %}
+{% import "partials/macros.html" as macros_zallery %}
+{% extends "_base.html" %}
+
+{% block page %}post{% endblock page %}
+{% block lang -%}
+{%- set parent_section_path = page.ancestors | last -%}
+{%- set section = get_section(path=parent_section_path, metadata_only=true) -%}
+{%- if page.extra.lang %}{{page.extra.lang}}{% elif section.extra.lang %}{{section.extra.lang}}{% else %}{{page.lang}}{% endif -%}
+{%- endblock lang %}
+{% block title %}{{ page.title }}{% endblock title %}
+{% block desc %}
+  {% if page.summary %}
+    {% set desc = page.summary %}
+  {% elif page.description %}
+    {% set desc = page.description %}
+  {% elif section.description %}
+    {% set desc = section.description %}
+  {% else %}
+    {% set desc = config.description %}
+  {% endif %}
+  <meta name="description" content="{{ desc }}">
+{% endblock desc %}
+
+{% block head %}
+{% if config.markdown.highlight_theme == "css" %}
+<link id="hl" rel="stylesheet" type="text/css" href="/hl-{% if config.extra.force_theme == "dark" %}dark{% else %}light{% endif %}.css" />
+<link href="{{ get_url(path="fonts.css") }}" rel="stylesheet" type="text/css"/>
+<link href="{{ get_url(path="zallery.css") }}" rel="stylesheet" type="text/css"/>
+{% endif %}
+{% endblock head %}
+
+{% block content %}
+{{ macros::back_link(path = get_url(path=section.path)) }}
+<div class=artwork>
+    <section class="artwork-nav">
+        {% if page.lower %}
+        <a class="action" href="{{ page.lower.permalink }}">{{ macros_zallery::svg_left() }}</a>
+        {% endif %}
+    </section>
+    <section class="artwork-view{% if not page.lower %} artwork-pad-left{% endif %}{% if not page.higher %} artwork-pad-right{% endif %}">
+        {{ page.content | safe }}
+    </section>
+    <section class="artwork-nav">
+        {% if page.higher %}
+        <a class="action" href="{{ page.higher.permalink }}">{{ macros_zallery::svg_right() }}</a>
+        {% endif %}
+    </section>
+    <section class="artwork-nav-mobile">
+        {% if page.lower %}
+        <a class="mobile-prev action" href="{{ page.lower.permalink }}">{{ macros_zallery::svg_left() }}<span class=artwork-nav-word> Previous</span></a>
+        {% endif %}
+        {% if page.higher %}
+        <a class="mobile-next action" href="{{ page.higher.permalink }}"><span class=artwork-nav-word>Next </span>{{ macros_zallery::svg_right() }}</a>
+        {% endif %}
+    </section>
+    <aside class=artwork-sidebar>
+        <h1>{{ page.title }}</h1>
+        <div class=artwork-meta>
+            {% if page.description -%}
+                <p>{{ page.description | markdown(inline=true) | safe }}</p>
+            {%- endif -%}
+            {%- if page.taxonomies.tags -%}
+            {% for tag in page.taxonomies.tags %}
+                <p><a class="badge badge-tag" href="{{ get_taxonomy_url(kind="tags", name=tag) }}">{{ tag }}</a></p>
+            {% endfor %}
+            {%- endif %}
+        </div>
+    </aside>
+</div>
+{% endblock content %}
+
+{% block script %}
+{% if config.extra.modelviewer or page.extra.modelviewer %}
+<script src="/js/lightense.min.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+{% endif %}
+{% if config.extra.jszoom %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/medium-zoom/1.1.0/medium-zoom.min.js" integrity="sha512-9ZKhgaFdKlsELap/dGw3Iaz5Bj+Las0XXZiRKYZaN9QArg6FtkD5rULNmNH4rTCTFxjPiBGr3MX8smRADRorDA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+const images = Array.from(document.querySelectorAll(".artwork-view img"));
+images.forEach((img) => { mediumZoom(img, { margin: 0, background: "", scrollOffset: 40, container: null, template: null }); });
+</script>  
+{% endif %}
+{% endblock script %}

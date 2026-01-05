@@ -1,0 +1,36 @@
+{% import "partials/macros.html" as macros %}
+<figure {% if fit %}class={{ fit }}{% endif %}>
+  <picture>
+    {%- set image_path = page.colocated_path ~ src %}
+    {%- set image_meta = get_image_metadata(path=image_path) %}
+    {%- if config.extra.covert_images %}
+      {%- set image = resize_image(path=image_path, width=image_meta.width, height=image_meta.height, format=config.extra.image_format, quality=config.extra.image_quality, op="fit") %}
+      {%- if config.extra.create_mobile_images %}
+        {%- if image_meta.width >= 1440 %}
+        {%- set image_mobile = resize_image(path=image_path, width=1440, height=image_meta.height, format=config.extra.image_format, quality=config.extra.image_quality, op="fit") %}
+        <source media="(max-width: 768px)" srcset="{{ image_mobile.url }}">
+        {%- endif %}
+      {%- endif %}
+      <img src="{{ image.url }}" {% if alt %}alt="{{ alt }}"{% elif text %}alt="{{ text }}"{% endif %} loading="lazy">
+    {%- elif config.extra.create_mobile_images %}
+      {%- if image_meta.width >= 1440 %}
+      {%- set image_mobile = resize_image(path=image_path, width=1440, height=image_meta.height, format=config.extra.image_format, quality=config.extra.image_quality, op="fit") %}
+      <source media="(max-width: 768px)" srcset="{{ image_mobile.url }}">
+      {%- endif %}
+      <img src="{{ get_url(path=image_path) }}" {% if alt %}alt="{{ alt }}"{% elif text %}alt="{{ text }}"{% endif %} loading="lazy">
+    {%- else %}
+      {%- if mobile_src %}
+      <source media="(max-width: 768px)" srcset="{{ get_url(path=page.colocated_path ~ mobile_src) }}">
+      {%- endif %}
+      <img src="{{ get_url(path=image_path) }}" {% if alt %}alt="{{ alt }}"{% elif text %}alt="{{ text }}"{% endif %} loading="lazy">
+    {%- endif %}
+    <div class="img-action">
+      <a class="action" href="{{ get_url(path=image_path) }}">{{ macros::svg_maximize() }}</a>
+    </div>
+  </picture>
+  {%- if text %}
+  <figcaption>
+    <span class="img-caption">{{ text }}</span>
+  </figcaption>
+  {%- endif %}
+</figure>

@@ -1,10 +1,5 @@
-<p align="center">
-  A minimal blog theme for <a href="https://www.getzola.org">zola</a>, well crafted
-</p>
+A minimal blog theme for [Zola](https://www.getzola.org), well crafted.
 
-<p align="center">
-  <a href="https://serene-demo.pages.dev">Demo</a> ·
-  <a href="https://github.com/isunjn/serene/blob/latest/USAGE.md">Usage</a>
-</p>
+[Demo](https://serene-demo.pages.dev) | [Usage](https://github.com/isunjn/serene/blob/latest/USAGE.md)
 
-<img alt="Screenshot" src="https://github.com/user-attachments/assets/fa0c9529-f83b-4e4d-aed9-5327a44bc828" />
+![screenshot](https://github.com/isunjn/serene/blob/main/screenshot.png?raw=true)

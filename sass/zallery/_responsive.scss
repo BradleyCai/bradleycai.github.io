@@ -1,0 +1,119 @@
+@media (max-width: 768px) {
+    html {
+        font-size: $small-device-font-size !important;
+    }
+
+    h1 {
+        margin-top: 0 !important;
+    }
+
+    .topbar-title {
+        flex: 1 1 auto !important;
+        padding-left: 1rem !important;
+    }
+
+    .topbar-text {
+        max-width: 100% !important;
+    }
+
+    .topbar-menu a {
+        padding-right: 1rem !important;
+    }
+
+    .artwork {
+        height: 100% !important;
+        flex-direction: column !important;
+    }
+
+    .artwork-view {
+        padding-right: $small-device-content-padding !important;
+        padding-left: $small-device-content-padding !important;
+        padding-bottom: $small-device-content-padding !important;
+    }
+
+    .artwork-sidebar {
+        padding-right: $small-device-content-padding !important;
+        padding-left: $small-device-content-padding !important;
+        padding-top: 0 !important;
+    }
+
+    .artwork-view .credit {
+        display: none !important;
+    }
+
+    .artwork-sidebar .credit {
+        display: unset !important;
+    }
+
+    .artwork-nav {
+        display: none !important;
+    }
+
+    .artwork-nav-mobile {
+        display: unset !important;
+    }
+
+    .page {
+        padding-left: $small-device-content-padding !important;
+        padding-right: $small-device-content-padding !important;
+        padding-bottom: $small-device-content-padding !important;
+    }
+
+    .artwork-pad-right {
+        padding-right: 0 !important;
+    }
+    
+    .artwork-pad-left {
+        padding-left: 0 !important;
+    }
+}
+
+//dark mode
+@media (prefers-color-scheme: dark) {
+    body {
+        color: $body-color-dark !important;
+        background-color: $body-background-color-dark !important;
+    }
+
+    a {
+        color: $link-color-dark !important;
+
+        &:focus,
+        &:hover {
+            color: $link-hover-color-dark !important;
+        }
+    }
+
+    .artwork-meta {
+        .date {
+            color: $meta-color-dark !important;
+        }
+    }
+
+    .medium-zoom-overlay {
+        background-color: $body-background-color-dark !important;
+    }
+
+    .badge-tag,
+    a.badge-tag {
+        color: $tag-color-dark !important;
+        background-color: $tag-background-color-dark !important;
+
+        &:hover,
+        &:focus {
+            background-color: $tag-hover-background-color-dark !important;
+        }
+    }
+
+    .topbar {
+        background-color: $topbar-background-color-dark !important;
+        a {
+            color: $topbar-link-color-dark !important;
+    
+            &:focus,
+            &:hover {
+                color: $topbar-link-hover-color-dark !important;
+            }
+        }
+    }
+}
