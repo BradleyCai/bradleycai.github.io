@@ -2,7 +2,7 @@
 {% import "partials/macros.html" as macros_zallery %}
 {% extends "_base.html" %}
 
-{% block page %}post{% endblock page %}
+{% block page %}artwork{% endblock page %}
 {% block lang -%}
 {%- set parent_section_path = page.ancestors | last -%}
 {%- set section = get_section(path=parent_section_path, metadata_only=true) -%}
@@ -62,10 +62,11 @@
             {%- endif -%}
             {%- if page.taxonomies.tags -%}
             {% for tag in page.taxonomies.tags %}
-                <p><a class="badge badge-tag" href="{{ get_taxonomy_url(kind="tags", name=tag) }}">{{ tag }}</a></p>
+                <p><p class="badge badge-tag" href="{{ get_taxonomy_url(kind="tags", name=tag) }}">{{ tag }}</p></p>
             {% endfor %}
             {%- endif %}
         </div>
+        {% include "_footer.html" %}
     </aside>
 </div>
 {% endblock content %}

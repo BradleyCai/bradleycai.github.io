@@ -40,7 +40,7 @@ $h5-font-size:1rem;
 // topbar
 $topbar-title-font-size: 1.5rem;
 $topbar-links-font-size: 1rem;
-$topbar-height: 3rem;
+$topbar-height: 0rem;
 $topbar-offset: 0.75rem;
 $topbar-max-width: 100rem;
 
@@ -61,7 +61,7 @@ $thumbnail-info-font-size: 1.3rem;
 $thumbnail-info-font-weight: 400;
 
 /*** light mode ***/
-$body-color: $gray-9;
+$body-color: var(--text-color);
 $body-background-color: var(--bg-color);
 
 //links
@@ -80,7 +80,7 @@ $tag-background-color: $gray-6;
 $tag-hover-background-color: $body-color;
 
 /*** dark mode ***/
-$body-color-dark: $gray-3;
+$body-color-dark: var(--text-color);
 $body-background-color-dark: var(--bg-color);
 
 //links

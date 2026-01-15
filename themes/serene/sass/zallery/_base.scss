@@ -33,23 +33,34 @@ h1 {
     font-size: $h1-font-size;
     line-height: $h1-line-height;
     margin-bottom: .5rem;
+    color: $body-color;
 }
 
 h2 {
     font-size: $h2-font-size;
     margin-bottom: .5rem;
+    color: $body-color;
 }
 
 h3 {
+    margin-top: 0;
     font-size: $h3-font-size;
+    color: $body-color;
 }
 
 h4 {
     font-size: $h4-font-size;
+    color: $body-color;
 }
 
 h5 {
     font-size: $h5-font-size;
+    color: $body-color;
+}
+
+p {
+    font-size: var(--font-size);
+    color: $body-color;
 }
 
 %quotebox {
@@ -82,6 +93,7 @@ a {
 
         &.action {
             @include link-no-decoration();
+            background-color: rgba(0, 0, 0, 0.08);
         }
 
         &.thumbnail-link {
@@ -90,6 +102,7 @@ a {
     }
 
     &.action {
+        height: 100%;
         @include link-no-decoration();
     }
 

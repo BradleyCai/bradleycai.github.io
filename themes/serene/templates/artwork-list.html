@@ -1,0 +1,29 @@
+{% import "macros/prose.html" as macros %}
+{% extends "_base.html" %}
+
+{% block page %}artwork-list{% endblock page %}
+{% block lang %}{% if section.extra.lang %}{{ section.extra.lang }}{% else %}{{ section.lang }}{% endif %}{% endblock lang %}
+{% block title %}{{ section.title }}{% endblock title %}
+{% block desc %}
+  {% if section.description %}
+    {% set desc = section.description %}
+  {% else %}
+    {% set desc = config.description %}
+  {% endif %}
+  <meta name="description" content="{{ desc }}">
+{% endblock desc %}
+
+{% block head %}
+{% if config.markdown.highlight_theme == "css" %}
+<link id="hl" rel="stylesheet" type="text/css" href="/hl-{% if config.extra.force_theme == "dark" %}dark{% else %}light{% endif %}.css" />
+<link rel="stylesheet" href="/css/generated.css">
+{% endif %}
+{% endblock head %}
+
+{% block content %}
+<div id="wrapper">
+  {{ macros::back_link(path = get_url(path=section.path)) }}
+  {% include "partials/list.html" %}
+  {% include "_footer.html" %}
+</div>
+{% endblock %}

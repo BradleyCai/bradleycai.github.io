@@ -19,6 +19,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.badge {
+  padding-inline: calc(var(--spacing)*2.5);
+  padding-block: calc(var(--spacing)*.5);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+  --tw-leading: calc(var(--spacing)*4);
+  line-height: calc(var(--spacing)*4);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  border-radius: 3.40282e38px;
+  align-items: center;
+  display: inline-flex;
+  background-color: var(--primary-pale-color);
+  color: var(--text-color);
+}
+
 button:focus-visible,
 a:focus-visible {
   outline: var(--primary-color) solid 3px;
@@ -1295,6 +1311,21 @@ footer {
       }
       line-height: 0;
     }
+  }
+}
+
+body.artwork-list {
+  #wrapper {
+    margin: 0 auto;
+    max-width: var(--artwork-list-max-width);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    margin: 1em 0;
   }
 }
 

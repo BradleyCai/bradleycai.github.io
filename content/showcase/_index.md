@@ -1,16 +1,17 @@
 +++
 title = "Brad Cai"
-description = "A blog about graphics and video"
+description = "Graphics and video"
 sort_by = "date"
-template = "blog.html"
+template = "artwork-list.html"
 page_template = "artwork.html"
 insert_anchor_links = "right"
 generate_feeds = false
+paginate_by = 10
 
 [extra]
 lang = "en"
 
-title = "Posts"
+title = "Projects Showcase"
 # subtitle = "I write about ...."
 
 date_format = "%b %-d, %Y"

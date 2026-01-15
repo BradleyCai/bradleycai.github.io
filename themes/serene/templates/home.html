@@ -8,6 +8,7 @@
 {% endblock desc %}
 
 {% block head %}
+<link rel="stylesheet" href="/css/generated.css">
 {% if config.markdown.highlight_theme == "css" %}
   {% if config.extra.force_theme == "dark" %}
     <link id="hl" rel="stylesheet" type="text/css" href="{{ get_url(path='hl-dark.css') }}" />
@@ -83,23 +84,21 @@
       {{ section.content | trim | safe }}
     </section>
     {% if section.extra.recent %}
-    {% set blog_section_path = config.extra.blog_section_path | trim_start_matches(pat="/") %}
-    {% set section_md_path = blog_section_path ~ "/_index.md" %}
-    {% set blog_section = get_section(path=section_md_path) %}
-    <section class="layout-list">
-      <div class="post-list">
-        {% for post in blog_section.pages | slice(end=section.extra.recent_max) %}
-        <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
-          <span>{{ post.title }}</span>
-          <span class="date">{{ post.date | date(format=section.extra.date_format) }}</span>
-        </a>
-        {% endfor %}
+      {% set home_section_path = config.extra.home_section_path | trim_start_matches(pat="/") %}
+      {% set section_md_path = home_section_path ~ "/_index.md" %}
+      {% set home_section = get_section(path=section_md_path) %}
+      <div class="container max-w-7xl mx-auto py-4 px-4 sm:px-4 lg:px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            {% for page in home_section.pages | slice(end=section.extra.recent_max) %}
+              {% include "partials/list-element.html" %}
+            {% endfor %}
+        </div>
+        {% include "partials/navigation.html" %}
+        <div class="read-more">
+          <a class="instant" href="{{ config.extra.home_section_path }}">{{ section.extra.recent_more_text }}</a>
+        </div>
       </div>
-      <div class="read-more">
-        <a class="instant" href="{{ config.extra.blog_section_path }}">{{ section.extra.recent_more_text }}</a>
-      </div>
-    </section>
-  {% endif %}
+    {% endif %}
   </main>
   {% if section.extra.footer %}
     {% include "_footer.html" %}

@@ -1,0 +1,25 @@
+{% set banner = "/img/default-banner.jpg" %}
+{% if page.extra.thumbnail is defined %}
+  {% set banner = page.path ~ page.extra.thumbnail %}
+{% endif %}
+
+<div class="flex flex-col rounded-md shadow-md overflow-hidden">
+  <div class="flex-shrink-0">
+    <a href="{{ page.permalink }}" aria-label="{{ page.title | default(value="") }}">
+      <img class="h-48 w-full object-cover" src="{{ banner }}" alt="{{ page.title | default(value="") }}" />
+    </a>
+  </div>
+  <div class="flex-1 bg-white px-4 py-4 flex flex-col justify-between">
+    <div class="flex-1">
+      <a href="{{ page.permalink }}" class="block">
+        <h3 class="text-xl leading-7 font-semibold">
+          {{ page.title | default(value="") }}
+        </h3>
+      </a>
+      <p class="py-2 leading-6">
+        {{ page.extra.short_description | default(value="") }}
+      </p>
+      {% include "partials/tags.html" %}
+    </div>
+  </div>
+</div>

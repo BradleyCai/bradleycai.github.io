@@ -19,16 +19,17 @@
 
 body.post aside.artwork-sidebar {
     margin-top: 0;
+    width: 100%;
 }
 
 .artwork-view > * { //all children art
     margin-left: 0;
     margin-right: 0;
-    margin-top: 1.25rem;
+    margin-top: 4rem;
 }
 
 .artwork-view > p > img { //handle pure markdown images
-    margin-top: 1.25rem;
+    margin-top: 4rem;
 }
 
 .artwork-view > p {
@@ -60,6 +61,8 @@ body.post aside.artwork-sidebar {
 }
 
 .artwork-sidebar {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     padding: $large-device-content-padding;
     position: sticky;
@@ -89,6 +92,7 @@ body.post aside.artwork-sidebar {
     align-items:center;
     svg {
         vertical-align: middle;
+        height: 100%;
     }
 }
 
