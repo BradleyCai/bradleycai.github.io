@@ -13,6 +13,13 @@
   <meta name="description" content="{{ term.name }}">
 {% endblock desc %}
 
+{% block head %}
+{% if config.markdown.highlight_theme == "css" %}
+<link id="hl" rel="stylesheet" type="text/css" href="/hl-{% if config.extra.force_theme == "dark" %}dark{% else %}light{% endif %}.css" />
+<link rel="stylesheet" href="/css/generated.css">
+{% endif %}
+{% endblock head %}
+
 {% block content %}
 <div id="wrapper">
   {{ macros::back_link(path = get_url(path="/tags")) }}
@@ -20,14 +27,7 @@
     <div class="title">
       <span># {{ term.name }}</span>
     </div>
-    <div class="post-list">
-      {% for post in term.pages %}
-      <a class="post instant {% if post.extra.featured %}featured{% endif %}" href="{{ post.permalink }}">
-        <span>{{ post.title }}</span>
-        <span class="date">{{ post.date | date(format=section.extra.date_format) }}</span>
-      </a>
-      {% endfor %}
-    </div>
+    {% include "partials/list.html" %}
   </main>
   {% include "_footer.html" %}
 </div>

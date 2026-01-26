@@ -22,7 +22,7 @@
 
 {% block content %}
 <div id="wrapper">
-  {{ macros::back_link(path = get_url(path=section.path)) }}
+  {{ macros::back_link(path = get_url(path="/")) }}
   {% include "partials/list.html" %}
   {% include "_footer.html" %}
 </div>

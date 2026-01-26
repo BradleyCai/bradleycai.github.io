@@ -83,7 +83,7 @@ blockquote {
 }
 
 a {
-    color: $link-color;
+    color: var(--primary-color);
     text-decoration: none;
     word-wrap: break-word;
 

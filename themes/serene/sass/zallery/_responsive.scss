@@ -76,7 +76,7 @@
     }
 
     a {
-        color: $link-color-dark !important;
+        color: var(--primary-color);
 
         &:focus,
         &:hover {
@@ -96,12 +96,13 @@
 
     .badge-tag,
     a.badge-tag {
-        color: $tag-color-dark !important;
-        background-color: $tag-background-color-dark !important;
+        color: var(--text-color) !important;
+        background-color: var(--text-decoration-color) !important;
 
         &:hover,
         &:focus {
-            background-color: $tag-hover-background-color-dark !important;
+            color: var(--text-color) !important;
+            background-color: var(--text-pale-color) !important;
         }
     }
 

@@ -9,8 +9,7 @@
       <img class="h-48 w-full object-cover" src="{{ banner }}" alt="{{ page.title | default(value="") }}" />
     </a>
   </div>
-  <div class="flex-1 bg-white px-4 py-4 flex flex-col justify-between">
-    <div class="flex-1">
+  <div class="flex-1 bg-white px-4 py-4 flex flex-col">
       <a href="{{ page.permalink }}" class="block">
         <h3 class="text-xl leading-7 font-semibold">
           {{ page.title | default(value="") }}
@@ -20,6 +19,5 @@
         {{ page.extra.short_description | default(value="") }}
       </p>
       {% include "partials/tags.html" %}
-    </div>
   </div>
 </div>
