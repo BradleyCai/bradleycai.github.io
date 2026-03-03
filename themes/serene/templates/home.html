@@ -84,13 +84,11 @@
       {{ section.content | trim | safe }}
     </section>
     {% if section.extra.recent %}
-      {% set home_section_path = config.extra.home_section_path | trim_start_matches(pat="/") %}
-      {% set section_md_path = home_section_path ~ "/_index.md" %}
-      {% set home_section = get_section(path=section_md_path) %}
       <div class="container max-w-7xl mx-auto py-4 px-4 sm:px-4 lg:px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            {% for page in home_section.pages | slice(end=section.extra.recent_max) %}
-              {% include "partials/list-element.html" %}
+            {% for page_path in config.extra.featured_pages %}
+                {% set page = get_page(path=page_path) %}
+                {% include "partials/list-element.html" %}
             {% endfor %}
         </div>
         {% include "partials/navigation.html" %}

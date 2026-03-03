@@ -52,6 +52,13 @@ blog_section_path = "/posts"
 home_section_path = "/showcase"
 jszoom = true
 
+featured_pages = [
+    "showcase/pbr-vulkan/index.md",
+    "showcase/vulkan-engine/index.md",
+    "showcase/snow-shader/index.md",
+    "showcase/adore-you/index.md",
+]
+
 back_link_text = "Back" # Text of the back button
 force_theme = false # false | "light" | "dark"
 
